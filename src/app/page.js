@@ -1,11 +1,18 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { getDb } from '@/lib/db';
+import { getSession } from '@/lib/auth';
 import { quoteWithDetail } from '@/lib/queries';
 import { money } from '@/lib/quote-math';
 
 export const dynamic = 'force-dynamic';
 
-export default function Dashboard() {
+export default async function Dashboard() {
+  // Middleware also guards this route; checked here too so a middleware
+  // misconfiguration can never expose customer or pricing data.
+  const session = await getSession();
+  if (!session) redirect('/login');
+
   const db = getDb();
   const counts = {
     ingredients: db.prepare('SELECT COUNT(*) AS n FROM ingredients WHERE active = 1').get().n,
