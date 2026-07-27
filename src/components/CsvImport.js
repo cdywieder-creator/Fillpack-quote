@@ -6,7 +6,7 @@ import Papa from 'papaparse';
 // Generic CSV import with a header-mapping step, so existing spreadsheets
 // (e.g. Product Cost Tracker V3) can be loaded without reformatting.
 // fields: [{ key, label, required }]
-export default function CsvImport({ target, fields, extraControls = null, buildRow, onDone }) {
+export default function CsvImport({ target, fields, extraControls = null, buildRow, onDone, unit = 'rows', help = '' }) {
   const [open, setOpen] = useState(false);
   const [headers, setHeaders] = useState([]);
   const [rows, setRows] = useState([]);
@@ -85,11 +85,12 @@ export default function CsvImport({ target, fields, extraControls = null, buildR
       </button>
       {open && (
         <div className="mt-3 rounded-lg border border-gray-200 bg-white p-4">
+          {help && <p className="mb-3 text-sm text-gray-600">{help}</p>}
           <input type="file" accept=".csv,text/csv" onChange={handleFile} className="text-sm" />
           {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
           {result && (
             <p className="mt-2 text-sm text-green-700">
-              Imported {result.imported} rows{result.skipped > 0 ? `, skipped ${result.skipped}` : ''}.
+              Imported {result.imported} {unit}{result.skipped > 0 ? `, skipped ${result.skipped}` : ''}.
               {result.errors?.length > 0 && (
                 <span className="block text-xs text-red-600">{result.errors.join('; ')}</span>
               )}

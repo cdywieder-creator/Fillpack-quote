@@ -73,6 +73,7 @@ export default function IngredientsPage() {
         fields={[
           { key: 'name', label: 'Name', required: true },
           { key: 'cost', label: 'Cost', required: true },
+          { key: 'code', label: 'Code / SKU' },
           { key: 'supplier', label: 'Supplier' },
           { key: 'notes', label: 'Notes' },
         ]}

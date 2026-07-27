@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import CsvImport from '@/components/CsvImport';
 
 export default function RecipesPage() {
   const [recipes, setRecipes] = useState(null);
@@ -24,7 +25,21 @@ export default function RecipesPage() {
         </Link>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <CsvImport
+        target="recipes"
+        unit="recipes"
+        help="One row per oil. Rows sharing a recipe name become one recipe, and each recipe's percentages must total 100%. Oils are matched to your ingredients by name or code."
+        fields={[
+          { key: 'recipe_name', label: 'Recipe name', required: true },
+          { key: 'oil', label: 'Oil (name/code)', required: true },
+          { key: 'percentage', label: 'Percentage', required: true },
+          { key: 'specific_gravity', label: 'Specific gravity' },
+          { key: 'notes', label: 'Notes' },
+        ]}
+        onDone={load}
+      />
+
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {recipes?.length === 0 && (
           <p className="col-span-full rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center text-gray-400">
             No recipes yet. Add your oils first, then build a recipe.
