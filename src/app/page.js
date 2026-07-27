@@ -36,9 +36,14 @@ export default async function Dashboard() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-navy">Dashboard</h1>
-        <Link href="/quotes/new" className="rounded bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark">
-          + New Quote
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/chat" className="rounded bg-gray-700 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800">
+            💬 AI Assistant
+          </Link>
+          <Link href="/quotes/new" className="rounded bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark">
+            + New Quote
+          </Link>
+        </div>
       </div>
 
       <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
