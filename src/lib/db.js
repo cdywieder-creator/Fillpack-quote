@@ -35,6 +35,9 @@ function migrate(db) {
     supplier TEXT NOT NULL DEFAULT '',
     notes TEXT NOT NULL DEFAULT '',
     active INTEGER NOT NULL DEFAULT 1,
+    code TEXT NOT NULL DEFAULT '',
+    type TEXT NOT NULL DEFAULT '',
+    uom TEXT NOT NULL DEFAULT 'pcs',
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
@@ -109,6 +112,18 @@ function migrate(db) {
     unit_cost REAL NOT NULL
   );
   `);
+
+  // Backfill new ingredient columns for databases created before this migration.
+  const ingredientColumns = db.prepare('PRAGMA table_info(ingredients)').all().map((c) => c.name);
+  if (!ingredientColumns.includes('code')) {
+    db.exec(`ALTER TABLE ingredients ADD COLUMN code TEXT NOT NULL DEFAULT ''`);
+  }
+  if (!ingredientColumns.includes('type')) {
+    db.exec(`ALTER TABLE ingredients ADD COLUMN type TEXT NOT NULL DEFAULT ''`);
+  }
+  if (!ingredientColumns.includes('uom')) {
+    db.exec(`ALTER TABLE ingredients ADD COLUMN uom TEXT NOT NULL DEFAULT 'pcs'`);
+  }
 }
 
 function seed(db) {
