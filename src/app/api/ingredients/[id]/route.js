@@ -9,10 +9,13 @@ export const PUT = guarded(async (request, { params }) => {
   if (!name) throw badRequest('Name is required');
   const cost = Number(body.cost_per_lb);
   if (!Number.isFinite(cost) || cost < 0) throw badRequest('cost_per_lb must be a non-negative number');
+  const code = (body.code || '').trim();
+  const type = (body.type || '').trim();
+  const uom = (body.uom || 'pcs').trim() || 'pcs';
   const db = getDb();
   const info = db
-    .prepare(`UPDATE ingredients SET name = ?, cost_per_lb = ?, supplier = ?, notes = ?, updated_at = datetime('now') WHERE id = ?`)
-    .run(name, cost, body.supplier || '', body.notes || '', id);
+    .prepare(`UPDATE ingredients SET name = ?, cost_per_lb = ?, supplier = ?, notes = ?, code = ?, type = ?, uom = ?, updated_at = datetime('now') WHERE id = ?`)
+    .run(name, cost, body.supplier || '', body.notes || '', code, type, uom, id);
   if (info.changes === 0) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   return NextResponse.json(db.prepare('SELECT * FROM ingredients WHERE id = ?').get(id));
 });
