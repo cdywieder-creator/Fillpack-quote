@@ -27,6 +27,8 @@ export default function NewQuotePage() {
   const [validityDate, setValidityDate] = useState('');
   const [notes, setNotes] = useState('');
   const [showNewRecipe, setShowNewRecipe] = useState(false);
+  const [fillingRate, setFillingRate] = useState('');
+  const [fillingQty, setFillingQty] = useState('1');
 
   useEffect(() => {
     fetch('/api/recipes').then((r) => r.json()).then(setRecipes);
@@ -52,8 +54,10 @@ export default function NewQuotePage() {
       marginPct: Number(marginPct),
       quantity: Number(quantity),
       method,
+      fillingRate: Number(fillingRate || 0),
+      fillingQty: Number(fillingQty || 1),
     });
-  }, [recipe, fillWeightLb, selectedComponents, marginPct, quantity, method]);
+  }, [recipe, fillWeightLb, selectedComponents, marginPct, quantity, method, fillingRate, fillingQty]);
 
   async function save(e) {
     e.preventDefault();
@@ -68,6 +72,8 @@ export default function NewQuotePage() {
         package_size_oz: sizeOz,
         fill_weight_lb: fillWeightLb,
         quantity: Number(quantity),
+        filling_rate: Number(fillingRate || 0),
+        filling_qty: Number(fillingQty || 1),
         margin_pct: Number(marginPct),
         pricing_method: method,
         validity_date: validityDate,
@@ -160,6 +166,32 @@ export default function NewQuotePage() {
             </div>
           </section>
 
+          {/* Filling */}
+          <section className="rounded-lg border border-gray-200 bg-white p-4">
+            <h2 className="mb-1 font-semibold text-navy">Filling</h2>
+            <p className="mb-3 text-xs text-gray-500">
+              Your filling service charge — entered per quote, not picked from the component catalogue.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <label className="text-sm">
+                <span className="mb-1 block font-medium">Filling cost (per fill)</span>
+                <input type="number" step="any" min="0" placeholder="0.00" value={fillingRate}
+                  onChange={(e) => setFillingRate(e.target.value)} className={inputCls} />
+              </label>
+              <label className="text-sm">
+                <span className="mb-1 block font-medium">Fills per unit</span>
+                <input type="number" step="any" min="0.0001" value={fillingQty}
+                  onChange={(e) => setFillingQty(e.target.value)} className={inputCls} />
+              </label>
+              <div className="text-sm">
+                <span className="mb-1 block font-medium">Filling cost / unit</span>
+                <p className="rounded bg-gray-50 px-3 py-2 font-semibold text-navy">
+                  {money(Number(fillingRate || 0) * Number(fillingQty || 1), 4)}
+                </p>
+              </div>
+            </div>
+          </section>
+
           {/* Packaging */}
           <section className="rounded-lg border border-gray-200 bg-white p-4">
             <h2 className="mb-1 font-semibold text-navy">Packaging</h2>
@@ -224,6 +256,12 @@ export default function NewQuotePage() {
                     <tr className="border-t border-gray-100 font-medium">
                       <td className="py-1">Packaging subtotal</td>
                       <td className="py-1 text-right">{money(totals.packagingCost, 4)}</td>
+                    </tr>
+                    <tr className="border-t border-gray-100 font-medium">
+                      <td className="py-1">
+                        Filling{Number(fillingQty || 1) !== 1 ? ` ×${Number(fillingQty)}` : ''}
+                      </td>
+                      <td className="py-1 text-right">{money(totals.fillingCost, 4)}</td>
                     </tr>
                     <tr className="border-t border-gray-200 font-semibold text-navy">
                       <td className="py-1">BOM cost / unit</td>

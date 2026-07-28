@@ -43,6 +43,43 @@ check('unit price at 50% margin', totals.unitPrice, 10.2);
 check('total price', totals.totalPrice, 10200);
 check('realized margin', totals.marginOnPrice, 0.5);
 
+// Filling is its own cost line: rate × fills per unit, folded into BOM.
+const withFilling = computeQuote({
+  fillWeightLb: 1,
+  ingredients: [{ percentage: 100, costPerLb: 2 }],
+  components: [{ unitCost: 0.5, qtyPerUnit: 1 }],
+  marginPct: 50,
+  quantity: 100,
+  method: 'margin',
+  fillingRate: 1.7,
+  fillingQty: 1,
+});
+check('filling cost', withFilling.fillingCost, 1.7);
+check('bom includes filling', withFilling.bomCost, 4.2);
+check('price reflects filling', withFilling.unitPrice, 8.4);
+
+const twoFills = computeQuote({
+  fillWeightLb: 1,
+  ingredients: [{ percentage: 100, costPerLb: 2 }],
+  components: [{ unitCost: 0.5, qtyPerUnit: 1 }],
+  marginPct: 50,
+  quantity: 100,
+  fillingRate: 1.7,
+  fillingQty: 2,
+});
+check('filling scales with fills/unit', twoFills.fillingCost, 3.4);
+
+// Quotes created before the filling line existed default to zero.
+const noFilling = computeQuote({
+  fillWeightLb: 1,
+  ingredients: [{ percentage: 100, costPerLb: 2 }],
+  components: [{ unitCost: 0.5, qtyPerUnit: 1 }],
+  marginPct: 50,
+  quantity: 100,
+});
+check('filling defaults to 0', noFilling.fillingCost, 0);
+check('bom unchanged without filling', noFilling.bomCost, 2.5);
+
 check('recipe pct valid', validateRecipePercentages([{ percentage: 60 }, { percentage: 40 }]).valid ? 1 : 0, 1);
 check('recipe pct invalid', validateRecipePercentages([{ percentage: 60 }, { percentage: 39 }]).valid ? 1 : 0, 0);
 // float noise: 33.33 + 33.33 + 33.34 = 100

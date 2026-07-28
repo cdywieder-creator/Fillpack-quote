@@ -82,6 +82,8 @@ function migrate(db) {
     package_size_oz REAL NOT NULL,
     fill_weight_lb REAL NOT NULL,
     quantity INTEGER NOT NULL,
+    filling_rate REAL NOT NULL DEFAULT 0,
+    filling_qty REAL NOT NULL DEFAULT 1,
     margin_pct REAL NOT NULL,
     pricing_method TEXT NOT NULL DEFAULT 'margin',
     status TEXT NOT NULL DEFAULT 'draft',
@@ -123,6 +125,15 @@ function migrate(db) {
   }
   if (!ingredientColumns.includes('uom')) {
     db.exec(`ALTER TABLE ingredients ADD COLUMN uom TEXT NOT NULL DEFAULT 'pcs'`);
+  }
+
+  // Filling became its own quote line rather than a packaging component.
+  const quoteColumns = db.prepare('PRAGMA table_info(quotes)').all().map((c) => c.name);
+  if (!quoteColumns.includes('filling_rate')) {
+    db.exec(`ALTER TABLE quotes ADD COLUMN filling_rate REAL NOT NULL DEFAULT 0`);
+  }
+  if (!quoteColumns.includes('filling_qty')) {
+    db.exec(`ALTER TABLE quotes ADD COLUMN filling_qty REAL NOT NULL DEFAULT 1`);
   }
 }
 

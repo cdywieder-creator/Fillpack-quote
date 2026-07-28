@@ -36,16 +36,35 @@ export function priceFromCost(bomCost, marginPct, method = 'margin') {
   return bomCost / (1 - m);
 }
 
-export function computeQuote({ fillWeightLb, ingredients, components, marginPct, quantity, method = 'margin' }) {
+// Filling is a service charge per unit, not a catalogue item: a rate times the
+// number of fill operations each finished unit takes.
+export function fillingCostPerUnit(fillingRate, fillingQty = 1) {
+  const rate = Number(fillingRate) || 0;
+  const qty = Number(fillingQty);
+  return rate * (Number.isFinite(qty) ? qty : 1);
+}
+
+export function computeQuote({
+  fillWeightLb,
+  ingredients,
+  components,
+  marginPct,
+  quantity,
+  method = 'margin',
+  fillingRate = 0,
+  fillingQty = 1,
+}) {
   const oilCost = oilCostPerUnit(fillWeightLb, ingredients);
   const packagingCost = packagingCostPerUnit(components);
-  const bomCost = oilCost + packagingCost;
+  const fillingCost = fillingCostPerUnit(fillingRate, fillingQty);
+  const bomCost = oilCost + packagingCost + fillingCost;
   const unitPrice = priceFromCost(bomCost, marginPct, method);
   const unitProfit = unitPrice - bomCost;
   const qty = Number(quantity) || 0;
   return {
     oilCost,
     packagingCost,
+    fillingCost,
     bomCost,
     unitPrice,
     unitProfit,

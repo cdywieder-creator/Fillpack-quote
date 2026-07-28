@@ -127,6 +127,19 @@ export default function QuoteDetailPage({ params }) {
                 ))}
               </tbody>
             </table>
+            <table className="mt-4 w-full text-sm">
+              <thead className="text-left text-xs uppercase text-gray-500">
+                <tr><th className="py-1">Filling</th><th className="py-1 text-right">Fills/unit</th><th className="py-1 text-right">Rate</th><th className="py-1 text-right">Cost/unit</th></tr>
+              </thead>
+              <tbody>
+                <tr className="border-t border-gray-100">
+                  <td className="py-1">Filling service</td>
+                  <td className="py-1 text-right">{quote.filling_qty}</td>
+                  <td className="py-1 text-right">{money(quote.filling_rate, 4)}</td>
+                  <td className="py-1 text-right">{money(t.fillingCost, 4)}</td>
+                </tr>
+              </tbody>
+            </table>
           </section>
 
           {quote.notes && (
@@ -143,6 +156,10 @@ export default function QuoteDetailPage({ params }) {
             <div className="space-y-1 text-sm">
               <div className="flex justify-between text-gray-600"><span>Oil cost / unit</span><span>{money(t.oilCost, 4)}</span></div>
               <div className="flex justify-between text-gray-600"><span>Packaging / unit</span><span>{money(t.packagingCost, 4)}</span></div>
+              <div className="flex justify-between text-gray-600">
+                <span>Filling / unit{quote.filling_qty !== 1 ? ` (×${quote.filling_qty})` : ''}</span>
+                <span>{money(t.fillingCost, 4)}</span>
+              </div>
               <div className="flex justify-between border-t border-gray-200 pt-1 font-semibold"><span>BOM / unit</span><span>{money(t.bomCost, 4)}</span></div>
               <div className="flex justify-between text-gray-600">
                 <span>{quote.pricing_method === 'markup' ? 'Markup on cost' : 'Margin on price'}</span>

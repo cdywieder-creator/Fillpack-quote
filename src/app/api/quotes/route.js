@@ -26,6 +26,10 @@ export const POST = guarded(async (request, ctx, session) => {
   if (!Number.isFinite(fillWeightLb) || fillWeightLb <= 0) throw badRequest('Fill weight must be a positive number');
   const components = Array.isArray(body.components) ? body.components : [];
   if (components.length === 0) throw badRequest('Select at least one packaging component');
+  const fillingRate = Number(body.filling_rate ?? 0);
+  if (!Number.isFinite(fillingRate) || fillingRate < 0) throw badRequest('Filling cost must be a non-negative number');
+  const fillingQty = Number(body.filling_qty ?? 1);
+  if (!Number.isFinite(fillingQty) || fillingQty <= 0) throw badRequest('Filling quantity must be a positive number');
 
   const db = getDb();
   const recipe = db.prepare('SELECT * FROM recipes WHERE id = ?').get(body.recipe_id);
@@ -61,12 +65,12 @@ export const POST = guarded(async (request, ctx, session) => {
     const info = db
       .prepare(
         `INSERT INTO quotes (quote_number, customer_name, customer_company, customer_email, recipe_id, recipe_name,
-          package_size_oz, fill_weight_lb, quantity, margin_pct, pricing_method, status, validity_date, terms, notes, created_by)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?, ?, ?, ?)`
+          package_size_oz, fill_weight_lb, quantity, filling_rate, filling_qty, margin_pct, pricing_method, status, validity_date, terms, notes, created_by)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?, ?, ?, ?)`
       )
       .run(
         quoteNumber, customerName, body.customer_company || '', body.customer_email || '',
-        body.recipe_id, recipe.name, sizeOz, fillWeightLb, quantity, marginPct, method,
+        body.recipe_id, recipe.name, sizeOz, fillWeightLb, quantity, fillingRate, fillingQty, marginPct, method,
         validityDate, body.terms || DEFAULT_TERMS, body.notes || '', session.email || ''
       );
     const qid = info.lastInsertRowid;

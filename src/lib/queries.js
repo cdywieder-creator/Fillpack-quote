@@ -43,6 +43,8 @@ export function quoteWithDetail(db, id) {
     marginPct: quote.margin_pct,
     quantity: quote.quantity,
     method: quote.pricing_method,
+    fillingRate: quote.filling_rate,
+    fillingQty: quote.filling_qty,
   });
   return quote;
 }
