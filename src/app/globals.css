@@ -8,4 +8,37 @@
 
 body {
   @apply bg-gray-50 text-gray-900 antialiased;
+  /* Nothing here is wide enough to justify a sideways scroll on a phone. */
+  overflow-x: hidden;
+}
+
+/* iOS zooms the viewport when a focused control's text is under 16px, which
+   leaves the page scrolled sideways and feeling broken. */
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Comfortable touch targets, without every call site having to remember. */
+@media (pointer: coarse) {
+  button,
+  select,
+  [role="button"] {
+    min-height: 44px;
+  }
+}
+
+input,
+select,
+textarea,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Long SKU codes and emails should wrap rather than widen the page. */
+.break-anywhere {
+  overflow-wrap: anywhere;
 }

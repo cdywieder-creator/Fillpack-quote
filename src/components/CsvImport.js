@@ -103,8 +103,8 @@ export default function CsvImport({ target, fields, extraControls = null, buildR
               </p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {fields.map((f) => (
-                  <label key={f.key} className="flex items-center gap-2 text-sm">
-                    <span className="w-36 shrink-0">
+                  <label key={f.key} className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:gap-2">
+                    <span className="font-medium sm:w-36 sm:shrink-0 sm:font-normal">
                       {f.label}
                       {f.required && <span className="text-red-500"> *</span>}
                     </span>

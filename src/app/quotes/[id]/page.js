@@ -50,24 +50,27 @@ export default function QuoteDetailPage({ params }) {
 
   return (
     <div>
-      <div className="mb-1 text-sm"><Link href="/quotes" className="text-gray-400 hover:text-brand">← Quotes</Link></div>
+      <div className="text-sm">
+        <Link href="/quotes" className="-ml-1 inline-block px-1 py-2 text-gray-400 hover:text-brand">← Quotes</Link>
+      </div>
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <h1 className="text-2xl font-bold text-navy">{quote.quote_number}</h1>
         <select value={quote.status} onChange={(e) => setStatus(e.target.value)}
           className="rounded border border-gray-300 px-2 py-1 text-sm">
           {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
-        <div className="ml-auto flex gap-2">
+        <div className="flex w-full flex-wrap gap-2 sm:ml-auto sm:w-auto">
           <a href={`/api/quotes/${id}/pdf`} target="_blank"
-            className="rounded bg-navy px-4 py-2 text-sm font-semibold text-white hover:opacity-90">
+            className="flex-1 rounded bg-navy px-4 py-2 text-center text-sm font-semibold text-white hover:opacity-90 sm:flex-none">
             Customer PDF
           </a>
           <button onClick={pushHubspot}
-            className="rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-50"
+            className="flex-1 rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-50 sm:flex-none"
             title="Phase 2 — pushes this quote to HubSpot as a Deal">
             Push to HubSpot
           </button>
-          <button onClick={remove} className="rounded border border-red-200 px-3 py-2 text-sm text-red-600 hover:bg-red-50">
+          <button onClick={remove}
+            className="rounded border border-red-200 px-3 py-2 text-sm text-red-600 hover:bg-red-50">
             Delete
           </button>
         </div>
@@ -78,7 +81,7 @@ export default function QuoteDetailPage({ params }) {
       </p>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-2">
+        <div className="min-w-0 space-y-4 lg:col-span-2">
           <section className="rounded-lg border border-gray-200 bg-white p-4">
             <h2 className="mb-2 font-semibold text-navy">Customer</h2>
             <p className="text-sm">
@@ -97,7 +100,8 @@ export default function QuoteDetailPage({ params }) {
               {quote.recipe_name} — {quote.package_size_oz} oz · fill weight {quote.fill_weight_lb.toFixed(4)} lb/unit ·{' '}
               {quote.quantity.toLocaleString()} units
             </p>
-            <table className="mt-3 w-full text-sm">
+            <div className="-mx-4 mt-3 overflow-x-auto px-4">
+            <table className="w-full min-w-[22rem] text-sm">
               <thead className="text-left text-xs uppercase text-gray-500">
                 <tr><th className="py-1">Oil (snapshot cost)</th><th className="py-1 text-right">%</th><th className="py-1 text-right">$/lb</th><th className="py-1 text-right">Cost/unit</th></tr>
               </thead>
@@ -112,7 +116,9 @@ export default function QuoteDetailPage({ params }) {
                 ))}
               </tbody>
             </table>
-            <table className="mt-4 w-full text-sm">
+            </div>
+            <div className="-mx-4 mt-4 overflow-x-auto px-4">
+            <table className="w-full min-w-[22rem] text-sm">
               <thead className="text-left text-xs uppercase text-gray-500">
                 <tr><th className="py-1">Packaging (snapshot cost)</th><th className="py-1 text-right">Qty/unit</th><th className="py-1 text-right">Unit cost</th><th className="py-1 text-right">Cost/unit</th></tr>
               </thead>
@@ -127,7 +133,9 @@ export default function QuoteDetailPage({ params }) {
                 ))}
               </tbody>
             </table>
-            <table className="mt-4 w-full text-sm">
+            </div>
+            <div className="-mx-4 mt-4 overflow-x-auto px-4">
+            <table className="w-full min-w-[22rem] text-sm">
               <thead className="text-left text-xs uppercase text-gray-500">
                 <tr><th className="py-1">Filling</th><th className="py-1 text-right">Fills/unit</th><th className="py-1 text-right">Rate</th><th className="py-1 text-right">Cost/unit</th></tr>
               </thead>
@@ -140,6 +148,7 @@ export default function QuoteDetailPage({ params }) {
                 </tr>
               </tbody>
             </table>
+            </div>
           </section>
 
           {quote.notes && (

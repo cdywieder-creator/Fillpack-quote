@@ -81,8 +81,8 @@ export default function RecipeQuickCreate({ onCreated, onClose }) {
   const canSave = name.trim() && totalOk && !busy && lines.some((l) => l.ingredient_id);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4">
-      <div className="mt-8 w-full max-w-2xl rounded-lg bg-white p-5 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto overscroll-contain bg-black/40 p-3 sm:p-4">
+      <div className="mt-4 mb-4 w-full max-w-2xl rounded-lg bg-white p-4 shadow-xl sm:mt-8 sm:p-5">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold text-navy">New recipe</h2>
           <button type="button" onClick={onClose} className="rounded px-2 py-1 text-gray-400 hover:bg-gray-100" aria-label="Close">
@@ -155,15 +155,16 @@ export default function RecipeQuickCreate({ onCreated, onClose }) {
           </p>
         </div>
 
-        <div className="mt-5 flex items-center gap-3">
+        <div className="mt-5 flex flex-wrap items-center gap-3">
           <button type="button" onClick={submit} disabled={!canSave}
-            className="rounded bg-brand px-5 py-2 text-sm font-semibold text-white hover:bg-brand-dark disabled:opacity-50">
+            className="flex-1 rounded bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-dark disabled:opacity-50 sm:flex-none">
             {busy ? 'Creating…' : 'Create & use'}
           </button>
-          <button type="button" onClick={onClose} className="rounded border border-gray-300 px-4 py-2 text-sm">
+          <button type="button" onClick={onClose}
+            className="flex-1 rounded border border-gray-300 px-4 py-2.5 text-sm sm:flex-none">
             Cancel
           </button>
-          {!totalOk && <span className="text-sm text-red-600">Percentages must total 100%.</span>}
+          {!totalOk && <span className="w-full text-sm text-red-600 sm:w-auto">Percentages must total 100%.</span>}
         </div>
       </div>
     </div>

@@ -98,8 +98,9 @@ export default function RecipeEditor({ recipeId = null }) {
         </div>
         {lines.map((l, idx) => (
           <div key={idx} className="mb-2 flex items-center gap-2">
+            {/* min-w-0: long oil names would otherwise widen the row past the viewport. */}
             <select value={l.ingredient_id} onChange={(e) => setLine(idx, { ingredient_id: e.target.value })}
-              className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm" required>
+              className="min-w-0 flex-1 rounded border border-gray-300 px-3 py-2 text-sm" required>
               <option value="">Select oil…</option>
               {oils.map((o) => (
                 <option key={o.id} value={o.id}>{o.name} (${o.cost_per_lb.toFixed(2)}/lb)</option>
@@ -107,8 +108,8 @@ export default function RecipeEditor({ recipeId = null }) {
             </select>
             <input type="number" step="any" min="0" max="100" placeholder="%" value={l.percentage}
               onChange={(e) => setLine(idx, { percentage: e.target.value })}
-              className="w-24 rounded border border-gray-300 px-3 py-2 text-right text-sm" required />
-            <span className="text-sm text-gray-500">%</span>
+              className="w-20 shrink-0 rounded border border-gray-300 px-2 py-2 text-right text-sm sm:w-24 sm:px-3" required />
+            <span className="shrink-0 text-sm text-gray-500">%</span>
             <button type="button" onClick={() => setLines(lines.filter((_, i) => i !== idx))}
               disabled={lines.length === 1}
               className="rounded px-2 py-1 text-red-600 hover:bg-red-50 disabled:opacity-30">

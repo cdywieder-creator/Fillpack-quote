@@ -61,7 +61,32 @@ export default async function Dashboard() {
       </div>
 
       <h2 className="mb-3 text-lg font-semibold text-navy">Recent quotes</h2>
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+
+      {/* Mobile: cards, since a 7-column table is unreadable on a phone. */}
+      <div className="space-y-3 md:hidden">
+        {recent.length === 0 && (
+          <p className="rounded-lg border border-dashed border-gray-300 bg-white p-6 text-center text-sm text-gray-400">
+            No quotes yet. Add ingredients &amp; packaging, build a recipe, then create your first quote.
+          </p>
+        )}
+        {recent.map((q) => (
+          <Link key={q.id} href={`/quotes/${q.id}`}
+            className="block rounded-lg border border-gray-200 bg-white p-4 active:bg-gray-50">
+            <div className="flex items-start justify-between gap-3">
+              <span className="font-semibold text-brand">{q.quote_number}</span>
+              <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs ${statusColor[q.status] || ''}`}>{q.status}</span>
+            </div>
+            <p className="mt-1 font-medium text-navy">{q.customer_company || q.customer_name}</p>
+            <p className="mt-0.5 text-sm text-gray-500">{q.recipe_name} — {q.package_size_oz} oz</p>
+            <div className="mt-3 flex items-baseline justify-between border-t border-gray-100 pt-3 text-sm">
+              <span className="text-gray-500">{q.quantity.toLocaleString()} units</span>
+              <span className="font-semibold text-navy">{money(q.totals.totalPrice)}</span>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto rounded-lg border border-gray-200 bg-white md:block">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left text-xs uppercase text-gray-500">
             <tr>

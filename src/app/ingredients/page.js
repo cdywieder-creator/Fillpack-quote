@@ -56,7 +56,7 @@ export default function IngredientsPage() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-navy">Ingredients (Oils)</h1>
         <label className="flex items-center gap-2 text-sm text-gray-600">
           Show costs per
@@ -81,7 +81,7 @@ export default function IngredientsPage() {
         onDone={load}
       />
 
-      <form onSubmit={save} className="mt-4 grid grid-cols-2 gap-3 rounded-lg border border-gray-200 bg-white p-4 sm:grid-cols-5">
+      <form onSubmit={save} className="mt-4 grid grid-cols-1 gap-3 rounded-lg border border-gray-200 bg-white p-4 sm:grid-cols-2 lg:grid-cols-5">
         <input placeholder="Oil name *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
           className="rounded border border-gray-300 px-3 py-2 text-sm" required />
         <input placeholder={`Cost per ${unit} *`} type="number" step="any" min="0" value={form.cost_per_lb}
@@ -105,7 +105,35 @@ export default function IngredientsPage() {
         {error && <p className="col-span-full text-sm text-red-600">{error}</p>}
       </form>
 
-      <div className="mt-4 overflow-x-auto rounded-lg border border-gray-200 bg-white">
+      {/* Mobile: cards with full-width tap targets for edit/delete. */}
+      <div className="mt-4 space-y-3 md:hidden">
+        {items.length === 0 && (
+          <p className="rounded-lg border border-dashed border-gray-300 bg-white p-6 text-center text-sm text-gray-400">
+            No ingredients yet — add one above or import a CSV.
+          </p>
+        )}
+        {items.map((i) => (
+          <div key={i.id} className="rounded-lg border border-gray-200 bg-white p-4">
+            <div className="flex items-start justify-between gap-3">
+              <span className="break-anywhere font-medium text-navy">{i.name}</span>
+              <span className="shrink-0 font-semibold">${fromLb(i.cost_per_lb).toFixed(4)}<span className="text-xs font-normal text-gray-400">/{unit}</span></span>
+            </div>
+            {(i.supplier || i.notes) && (
+              <p className="mt-1 break-anywhere text-sm text-gray-500">
+                {[i.supplier, i.notes].filter(Boolean).join(' · ')}
+              </p>
+            )}
+            <div className="mt-3 flex gap-2 border-t border-gray-100 pt-3">
+              <button onClick={() => startEdit(i)}
+                className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm font-medium text-brand">Edit</button>
+              <button onClick={() => remove(i.id)}
+                className="flex-1 rounded border border-red-200 px-3 py-2 text-sm font-medium text-red-600">Delete</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 hidden overflow-x-auto rounded-lg border border-gray-200 bg-white md:block">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left text-xs uppercase text-gray-500">
             <tr>

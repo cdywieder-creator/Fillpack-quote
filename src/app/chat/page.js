@@ -61,23 +61,25 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-white">
+    /* 100dvh, not 100vh: mobile browser chrome would otherwise push the composer
+       below the fold. The nav is ~60px, hence the offset. */
+    <div className="-my-5 flex flex-col bg-white sm:-my-6" style={{ height: 'calc(100dvh - 60px)' }}>
       {/* Header */}
-      <div className="border-b border-gray-200 bg-white px-6 py-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-navy">Fillpack Assistant</h1>
-          <Link href="/" className="text-sm text-brand hover:underline">
-            Back to Dashboard
+      <div className="border-b border-gray-200 bg-white px-4 py-3 sm:px-6 sm:py-4">
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-xl font-bold text-navy sm:text-2xl">Fillpack Assistant</h1>
+          <Link href="/" className="shrink-0 text-sm text-brand hover:underline">
+            Dashboard
           </Link>
         </div>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-6 py-4">
+      <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6">
         {messages.map((msg, idx) => (
           <div key={idx} className={`mb-4 flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div
-              className={`max-w-xs rounded-lg px-4 py-2 ${
+              className={`max-w-[85%] rounded-lg px-4 py-2 sm:max-w-md ${
                 msg.role === 'user'
                   ? 'bg-brand text-white'
                   : 'border border-gray-200 bg-gray-50 text-gray-900'
@@ -102,26 +104,29 @@ export default function ChatPage() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-gray-200 bg-white px-6 py-4">
+      <div
+        className="border-t border-gray-200 bg-white px-4 py-3 sm:px-6 sm:py-4"
+        style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+      >
         <div className="flex gap-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-            placeholder="Ask me anything... (e.g., 'Create a new recipe' or 'Build a quote for 500 units')"
-            className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-brand focus:outline-none"
+            onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
+            placeholder="Ask me anything…"
+            className="min-w-0 flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-brand focus:outline-none"
             disabled={loading}
           />
           <button
             onClick={handleSend}
             disabled={loading || !input.trim()}
-            className="rounded-lg bg-brand px-6 py-2 text-sm font-semibold text-white hover:bg-brand-dark disabled:bg-gray-300"
+            className="shrink-0 rounded-lg bg-brand px-5 py-2 text-sm font-semibold text-white hover:bg-brand-dark disabled:bg-gray-300"
           >
             Send
           </button>
         </div>
-        <p className="mt-2 text-xs text-gray-500">
+        <p className="mt-2 hidden text-xs text-gray-500 sm:block">
           I can help you create recipes, add ingredients and packaging, build quotes, and manage your products.
         </p>
       </div>

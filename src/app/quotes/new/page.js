@@ -94,12 +94,15 @@ export default function NewQuotePage() {
 
   return (
     <>
-    <form onSubmit={save}>
+    {/* Bottom padding clears the mobile action bar pinned below. */}
+    <form onSubmit={save} className="pb-24 lg:pb-0">
       <h1 className="mb-4 text-2xl font-bold text-navy">New Quote</h1>
       {error && <p className="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
+      {/* min-w-0: grid items default to min-width:auto, which lets the packaging
+          list's min-content width stretch the track past the viewport. */}
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-2">
+        <div className="min-w-0 space-y-4 lg:col-span-2">
           {/* Customer */}
           <section className="rounded-lg border border-gray-200 bg-white p-4">
             <h2 className="mb-3 font-semibold text-navy">Customer</h2>
@@ -228,8 +231,8 @@ export default function NewQuotePage() {
         </div>
 
         {/* Live breakdown */}
-        <div>
-          <div className="sticky top-4 rounded-lg border border-gray-200 bg-white p-4">
+        <div className="min-w-0">
+          <div className="sticky top-20 rounded-lg border border-gray-200 bg-white p-4">
             <h2 className="mb-3 font-semibold text-navy">Cost breakdown (per unit)</h2>
             {!totals ? (
               <p className="text-sm text-gray-400">Select a recipe and size to see live pricing.</p>
@@ -289,6 +292,26 @@ export default function NewQuotePage() {
               <p className="mt-2 text-xs text-red-600">Select at least one packaging component.</p>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Mobile: keep the running total and the submit reachable without
+          scrolling back through the whole form. */}
+      <div
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white px-4 py-3 shadow-[0_-2px_8px_rgba(0,0,0,0.06)] lg:hidden"
+        style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+      >
+        <div className="flex items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs text-gray-500">
+              {totals ? `${Number(quantity || 0).toLocaleString()} units · ${money(totals.unitPrice, 4)}/unit` : 'Select a recipe to price'}
+            </p>
+            <p className="truncate text-lg font-bold text-navy">{totals ? money(totals.totalPrice) : '—'}</p>
+          </div>
+          <button type="submit" disabled={busy || !totals || selectedComponents.length === 0}
+            className="shrink-0 rounded bg-brand px-5 py-3 text-sm font-semibold text-white disabled:opacity-50">
+            {busy ? 'Creating…' : 'Create quote'}
+          </button>
         </div>
       </div>
     </form>

@@ -58,23 +58,39 @@ export default function PackagingPicker({ packaging, selected, setSelected, size
       ) : (
         <ul className="mb-3 space-y-1">
           {chosen.map((p) => (
-            <li key={p.id} className="flex items-center gap-2 rounded border border-brand bg-orange-50 px-3 py-2 text-sm">
-              <span className="w-16 shrink-0 text-xs font-semibold uppercase text-brand">{p.type}</span>
-              <span className="flex-1 truncate" title={p.description}>{p.description}</span>
-              <span className="text-gray-500">${Number(p.unit_cost).toFixed(4)}</span>
-              <label className="flex items-center gap-1 text-xs text-gray-500">
-                ×
-                <input
-                  type="number" min="1" step="1" value={selected[p.id]}
-                  onChange={(e) => setSelected({ ...selected, [p.id]: e.target.value })}
-                  className="w-14 rounded border border-gray-300 px-1 py-0.5 text-right"
-                  title="Quantity per unit"
-                />
-              </label>
-              <button type="button" onClick={() => remove(p.id)}
-                className="rounded px-2 py-0.5 text-red-600 hover:bg-red-50" aria-label={`Remove ${p.description}`}>
-                ✕
-              </button>
+            <li key={p.id} className="rounded border border-brand bg-orange-50 px-3 py-2 text-sm">
+              {/* Stacked on phones so the description is not truncated to nothing. */}
+              <div className="flex items-start gap-2 sm:items-center">
+                <span className="w-14 shrink-0 pt-0.5 text-xs font-semibold uppercase text-brand sm:w-16 sm:pt-0">{p.type}</span>
+                <span className="min-w-0 flex-1 break-anywhere sm:truncate" title={p.description}>{p.description}</span>
+                <button type="button" onClick={() => remove(p.id)}
+                  className="-mr-1 shrink-0 rounded px-2 py-0.5 text-red-600 hover:bg-red-50 sm:order-last"
+                  aria-label={`Remove ${p.description}`}>
+                  ✕
+                </button>
+                <span className="hidden text-gray-500 sm:inline">${Number(p.unit_cost).toFixed(4)}</span>
+                <label className="hidden items-center gap-1 text-xs text-gray-500 sm:flex">
+                  ×
+                  <input
+                    type="number" min="1" step="1" value={selected[p.id]}
+                    onChange={(e) => setSelected({ ...selected, [p.id]: e.target.value })}
+                    className="w-14 rounded border border-gray-300 px-1 py-0.5 text-right"
+                    title="Quantity per unit"
+                  />
+                </label>
+              </div>
+              <div className="mt-2 flex items-center gap-3 pl-14 sm:hidden">
+                <span className="text-gray-500">${Number(p.unit_cost).toFixed(4)}</span>
+                <label className="flex items-center gap-1 text-xs text-gray-500">
+                  qty ×
+                  <input
+                    type="number" min="1" step="1" value={selected[p.id]}
+                    onChange={(e) => setSelected({ ...selected, [p.id]: e.target.value })}
+                    className="w-16 rounded border border-gray-300 px-2 py-1 text-right"
+                    title="Quantity per unit"
+                  />
+                </label>
+              </div>
             </li>
           ))}
         </ul>
@@ -106,12 +122,12 @@ export default function PackagingPicker({ packaging, selected, setSelected, size
           ranked.map((p) => (
             <button
               key={p.id} type="button" onClick={() => add(p.id)}
-              className="flex w-full items-center gap-2 border-b border-gray-100 px-3 py-2 text-left text-sm last:border-0 hover:bg-gray-50"
+              className="flex w-full items-center gap-2 border-b border-gray-100 px-3 py-3 text-left text-sm last:border-0 hover:bg-gray-50 sm:py-2"
             >
-              <span className="w-16 shrink-0 text-xs font-semibold uppercase text-gray-400">{p.type}</span>
-              <span className="flex-1 truncate" title={p.description}>{p.description}</span>
-              {p.size_compatibility && <span className="text-xs text-gray-400">{p.size_compatibility}</span>}
-              <span className="text-gray-500">${Number(p.unit_cost).toFixed(4)}</span>
+              <span className="w-14 shrink-0 text-xs font-semibold uppercase text-gray-400 sm:w-16">{p.type}</span>
+              <span className="min-w-0 flex-1 truncate" title={p.description}>{p.description}</span>
+              {p.size_compatibility && <span className="hidden text-xs text-gray-400 sm:inline">{p.size_compatibility}</span>}
+              <span className="shrink-0 text-gray-500">${Number(p.unit_cost).toFixed(4)}</span>
             </button>
           ))
         )}
