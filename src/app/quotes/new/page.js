@@ -8,8 +8,7 @@ import RecipeQuickCreate from '@/components/RecipeQuickCreate';
 
 const SIZES = [1, 2, 4, 8, 12, 16, 32];
 
-// House pricing: every quote is cost / 0.75.
-const MARGIN_PCT = 25;
+const DEFAULT_MARGIN_PCT = 25;
 
 export default function NewQuotePage() {
   const router = useRouter();
@@ -29,6 +28,9 @@ export default function NewQuotePage() {
   const [notes, setNotes] = useState('');
   const [showNewRecipe, setShowNewRecipe] = useState(false);
   const [fillingRate, setFillingRate] = useState('');
+  const [priceMode, setPriceMode] = useState('margin'); // 'margin' | 'price'
+  const [marginPct, setMarginPct] = useState(String(DEFAULT_MARGIN_PCT));
+  const [sellPrice, setSellPrice] = useState('');
 
   useEffect(() => {
     fetch('/api/recipes').then((r) => r.json()).then(setRecipes);
@@ -45,19 +47,37 @@ export default function NewQuotePage() {
     .filter((p) => selected[p.id])
     .map((p) => ({ ...p, qty_per_unit: 1 }));
 
+  const quoteInput = useMemo(() => ({
+    fillWeightLb,
+    ingredients: recipe ? recipe.ingredients.map((i) => ({ percentage: i.percentage, costPerLb: i.cost_per_lb })) : [],
+    components: selectedComponents.map((c) => ({ unitCost: c.unit_cost, qtyPerUnit: c.qty_per_unit })),
+    quantity: Number(quantity),
+    method: 'margin',
+    fillingRate: Number(fillingRate || 0),
+    fillingQty: 1,
+  }), [recipe, fillWeightLb, selectedComponents, quantity, fillingRate]);
+
+  // Cost per unit is independent of how the price is set, so a typed sell price
+  // can be converted back into the margin the rest of the app stores.
+  const bomCost = useMemo(
+    () => (recipe && fillWeightLb > 0 ? computeQuote({ ...quoteInput, marginPct: 0 }).bomCost : 0),
+    [quoteInput, recipe, fillWeightLb]
+  );
+
+  const priceBelowCost = priceMode === 'price' && sellPrice !== '' && Number(sellPrice) < bomCost;
+
+  const effectiveMargin = useMemo(() => {
+    if (priceMode === 'margin') return Number(marginPct) || 0;
+    const price = Number(sellPrice);
+    if (!(price > 0) || !(bomCost >= 0)) return 0;
+    return ((price - bomCost) / price) * 100;
+  }, [priceMode, marginPct, sellPrice, bomCost]);
+
   const totals = useMemo(() => {
     if (!recipe || !(fillWeightLb > 0)) return null;
-    return computeQuote({
-      fillWeightLb,
-      ingredients: recipe.ingredients.map((i) => ({ percentage: i.percentage, costPerLb: i.cost_per_lb })),
-      components: selectedComponents.map((c) => ({ unitCost: c.unit_cost, qtyPerUnit: c.qty_per_unit })),
-      marginPct: MARGIN_PCT,
-      quantity: Number(quantity),
-      method: 'margin',
-      fillingRate: Number(fillingRate || 0),
-      fillingQty: 1,
-    });
-  }, [recipe, fillWeightLb, selectedComponents, quantity, fillingRate]);
+    if (priceMode === 'price' && !(Number(sellPrice) > 0)) return null;
+    return computeQuote({ ...quoteInput, marginPct: effectiveMargin });
+  }, [quoteInput, recipe, fillWeightLb, effectiveMargin, priceMode, sellPrice]);
 
   async function save(e) {
     e.preventDefault();
@@ -74,7 +94,7 @@ export default function NewQuotePage() {
         quantity: Number(quantity),
         filling_rate: Number(fillingRate || 0),
         filling_qty: 1,
-        margin_pct: MARGIN_PCT,
+        margin_pct: effectiveMargin,
         pricing_method: 'margin',
         validity_date: validityDate,
         notes,
@@ -200,10 +220,46 @@ export default function NewQuotePage() {
           {/* Pricing */}
           <section className="rounded-lg border border-gray-200 bg-white p-4">
             <h2 className="mb-3 font-semibold text-navy">Pricing</h2>
-            <label className="block text-sm sm:max-w-xs">
-              <span className="mb-1 block font-medium">Valid through</span>
-              <input type="date" value={validityDate} onChange={(e) => setValidityDate(e.target.value)} className={inputCls} />
-            </label>
+            <div className="mb-3 flex gap-2">
+              {[['margin', 'Set margin %'], ['price', 'Set sell price']].map(([mode, label]) => (
+                <button key={mode} type="button" onClick={() => setPriceMode(mode)}
+                  className={`rounded-full px-3 py-1.5 text-xs font-medium ${
+                    priceMode === mode ? 'bg-brand text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}>
+                  {label}
+                </button>
+              ))}
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {priceMode === 'margin' ? (
+                <label className="text-sm">
+                  <span className="mb-1 block font-medium">Margin % *</span>
+                  <input type="number" step="any" min="0" max="99.9" value={marginPct} required
+                    onChange={(e) => setMarginPct(e.target.value)} className={inputCls} />
+                </label>
+              ) : (
+                <label className="text-sm">
+                  <span className="mb-1 block font-medium">Sell price per unit *</span>
+                  <input type="number" step="any" min="0" placeholder="0.00" value={sellPrice} required
+                    onChange={(e) => setSellPrice(e.target.value)} className={inputCls} />
+                </label>
+              )}
+              <div className="text-sm">
+                <span className="mb-1 block font-medium">{priceMode === 'margin' ? 'Unit price' : 'Margin'}</span>
+                <p className="rounded bg-gray-50 px-3 py-2 font-semibold text-navy">
+                  {!totals ? '—' : priceMode === 'margin' ? money(totals.unitPrice) : `${effectiveMargin.toFixed(1)}%`}
+                </p>
+              </div>
+              <label className="text-sm">
+                <span className="mb-1 block font-medium">Valid through</span>
+                <input type="date" value={validityDate} onChange={(e) => setValidityDate(e.target.value)} className={inputCls} />
+              </label>
+            </div>
+            {priceBelowCost && (
+              <p className="mt-2 text-sm text-red-600">
+                Sell price is below the {money(bomCost)} cost per unit.
+              </p>
+            )}
             <label className="mt-3 block text-sm">
               <span className="mb-1 block font-medium">Internal notes</span>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className={inputCls} />
@@ -263,7 +319,7 @@ export default function NewQuotePage() {
                 </div>
               </>
             )}
-            <button type="submit" disabled={busy || !totals || selectedComponents.length === 0}
+            <button type="submit" disabled={busy || !totals || selectedComponents.length === 0 || priceBelowCost}
               className="mt-4 w-full rounded bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark disabled:opacity-50">
               {busy ? 'Creating…' : 'Create quote'}
             </button>
@@ -287,7 +343,7 @@ export default function NewQuotePage() {
             </p>
             <p className="truncate text-lg font-bold text-navy">{totals ? money(totals.totalPrice) : '—'}</p>
           </div>
-          <button type="submit" disabled={busy || !totals || selectedComponents.length === 0}
+          <button type="submit" disabled={busy || !totals || selectedComponents.length === 0 || priceBelowCost}
             className="shrink-0 rounded bg-brand px-5 py-3 text-sm font-semibold text-white disabled:opacity-50">
             {busy ? 'Creating…' : 'Create quote'}
           </button>
