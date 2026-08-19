@@ -171,8 +171,8 @@ export default function QuoteDetailPage({ params }) {
               </div>
               <div className="flex justify-between border-t border-gray-200 pt-1 font-semibold"><span>BOM / unit</span><span>{money(t.bomCost)}</span></div>
               <div className="flex justify-between text-gray-600">
-                <span>{quote.pricing_method === 'markup' ? 'Markup on cost' : 'Margin on price'}</span>
-                <span>{quote.margin_pct}%</span>
+                <span>Margin ({quote.margin_pct}%)</span>
+                <span>cost ÷ {(1 - quote.margin_pct / 100).toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-bold text-brand"><span>Unit price</span><span>{money(t.unitPrice)}</span></div>
               <div className="flex justify-between border-t border-gray-200 pt-2 font-bold text-navy"><span>Quote total</span><span>{money(t.totalPrice)}</span></div>

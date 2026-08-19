@@ -80,6 +80,19 @@ const noFilling = computeQuote({
 check('filling defaults to 0', noFilling.fillingCost, 0);
 check('bom unchanged without filling', noFilling.bomCost, 2.5);
 
+// The house default: 25% margin means price = cost / 0.75.
+const house = computeQuote({
+  fillWeightLb: 1,
+  ingredients: [{ percentage: 100, costPerLb: 1 }],
+  components: [{ unitCost: 0.5, qtyPerUnit: 1 }],
+  marginPct: 25,
+  quantity: 1000,
+  fillingRate: 0.25,
+});
+check('house bom', house.bomCost, 1.75);
+check('house price is cost / 0.75', house.unitPrice, 1.75 / 0.75);
+check('house realized margin', house.marginOnPrice, 0.25);
+
 check('recipe pct valid', validateRecipePercentages([{ percentage: 60 }, { percentage: 40 }]).valid ? 1 : 0, 1);
 check('recipe pct invalid', validateRecipePercentages([{ percentage: 60 }, { percentage: 39 }]).valid ? 1 : 0, 0);
 // float noise: 33.33 + 33.33 + 33.34 = 100

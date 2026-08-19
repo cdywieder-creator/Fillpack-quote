@@ -21,8 +21,7 @@ export default function NewQuotePage() {
   const [customSize, setCustomSize] = useState('');
   const [fillOverride, setFillOverride] = useState(''); // blank = auto-derived
   const [quantity, setQuantity] = useState('1000');
-  const [marginPct, setMarginPct] = useState('40');
-  const [method, setMethod] = useState('margin');
+  const [marginPct, setMarginPct] = useState('25');
   const [selected, setSelected] = useState({}); // packaging_component_id -> qty_per_unit
   const [validityDate, setValidityDate] = useState('');
   const [notes, setNotes] = useState('');
@@ -52,11 +51,11 @@ export default function NewQuotePage() {
       components: selectedComponents.map((c) => ({ unitCost: c.unit_cost, qtyPerUnit: c.qty_per_unit })),
       marginPct: Number(marginPct),
       quantity: Number(quantity),
-      method,
+      method: 'margin',
       fillingRate: Number(fillingRate || 0),
       fillingQty: 1,
     });
-  }, [recipe, fillWeightLb, selectedComponents, marginPct, quantity, method, fillingRate]);
+  }, [recipe, fillWeightLb, selectedComponents, marginPct, quantity, fillingRate]);
 
   async function save(e) {
     e.preventDefault();
@@ -74,7 +73,7 @@ export default function NewQuotePage() {
         filling_rate: Number(fillingRate || 0),
         filling_qty: 1,
         margin_pct: Number(marginPct),
-        pricing_method: method,
+        pricing_method: 'margin',
         validity_date: validityDate,
         notes,
         components: selectedComponents.map((c) => ({ packaging_component_id: c.id, qty_per_unit: c.qty_per_unit })),
@@ -201,17 +200,17 @@ export default function NewQuotePage() {
             <h2 className="mb-3 font-semibold text-navy">Pricing</h2>
             <div className="grid gap-3 sm:grid-cols-3">
               <label className="text-sm">
-                <span className="mb-1 block font-medium">{method === 'margin' ? 'Margin %' : 'Markup %'} *</span>
-                <input type="number" step="any" min="0" max={method === 'margin' ? 99.9 : 1000} value={marginPct} required
+                <span className="mb-1 block font-medium">Margin % *</span>
+                <input type="number" step="any" min="0" max="99.9" value={marginPct} required
                   onChange={(e) => setMarginPct(e.target.value)} className={inputCls} />
               </label>
-              <label className="text-sm">
-                <span className="mb-1 block font-medium">Method</span>
-                <select value={method} onChange={(e) => setMethod(e.target.value)} className={inputCls}>
-                  <option value="margin">Margin on selling price — BOM ÷ (1 − m)</option>
-                  <option value="markup">Markup on cost — BOM × (1 + m)</option>
-                </select>
-              </label>
+              <div className="text-sm sm:col-span-2">
+                <span className="mb-1 block font-medium">Price formula</span>
+                <p className="rounded bg-gray-50 px-3 py-2 text-gray-600">
+                  cost ÷ {(1 - (Number(marginPct) || 0) / 100).toFixed(2)}
+                  {totals && <span className="font-semibold text-navy"> = {money(totals.unitPrice)} per unit</span>}
+                </p>
+              </div>
               <label className="text-sm">
                 <span className="mb-1 block font-medium">Valid through</span>
                 <input type="date" value={validityDate} onChange={(e) => setValidityDate(e.target.value)} className={inputCls} />
