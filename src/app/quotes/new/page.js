@@ -8,6 +8,9 @@ import RecipeQuickCreate from '@/components/RecipeQuickCreate';
 
 const SIZES = [1, 2, 4, 8, 12, 16, 32];
 
+// House pricing: every quote is cost / 0.75.
+const MARGIN_PCT = 25;
+
 export default function NewQuotePage() {
   const router = useRouter();
   const [recipes, setRecipes] = useState([]);
@@ -21,8 +24,7 @@ export default function NewQuotePage() {
   const [customSize, setCustomSize] = useState('');
   const [fillOverride, setFillOverride] = useState(''); // blank = auto-derived
   const [quantity, setQuantity] = useState('1000');
-  const [marginPct, setMarginPct] = useState('25');
-  const [selected, setSelected] = useState({}); // packaging_component_id -> qty_per_unit
+  const [selected, setSelected] = useState({}); // set of chosen packaging_component_id
   const [validityDate, setValidityDate] = useState('');
   const [notes, setNotes] = useState('');
   const [showNewRecipe, setShowNewRecipe] = useState(false);
@@ -41,7 +43,7 @@ export default function NewQuotePage() {
 
   const selectedComponents = packaging
     .filter((p) => selected[p.id])
-    .map((p) => ({ ...p, qty_per_unit: Number(selected[p.id]) || 1 }));
+    .map((p) => ({ ...p, qty_per_unit: 1 }));
 
   const totals = useMemo(() => {
     if (!recipe || !(fillWeightLb > 0)) return null;
@@ -49,13 +51,13 @@ export default function NewQuotePage() {
       fillWeightLb,
       ingredients: recipe.ingredients.map((i) => ({ percentage: i.percentage, costPerLb: i.cost_per_lb })),
       components: selectedComponents.map((c) => ({ unitCost: c.unit_cost, qtyPerUnit: c.qty_per_unit })),
-      marginPct: Number(marginPct),
+      marginPct: MARGIN_PCT,
       quantity: Number(quantity),
       method: 'margin',
       fillingRate: Number(fillingRate || 0),
       fillingQty: 1,
     });
-  }, [recipe, fillWeightLb, selectedComponents, marginPct, quantity, fillingRate]);
+  }, [recipe, fillWeightLb, selectedComponents, quantity, fillingRate]);
 
   async function save(e) {
     e.preventDefault();
@@ -72,7 +74,7 @@ export default function NewQuotePage() {
         quantity: Number(quantity),
         filling_rate: Number(fillingRate || 0),
         filling_qty: 1,
-        margin_pct: Number(marginPct),
+        margin_pct: MARGIN_PCT,
         pricing_method: 'margin',
         validity_date: validityDate,
         notes,
@@ -191,31 +193,17 @@ export default function NewQuotePage() {
           {/* Packaging */}
           <section className="rounded-lg border border-gray-200 bg-white p-4">
             <h2 className="mb-1 font-semibold text-navy">Packaging</h2>
-            <p className="mb-3 text-xs text-gray-500">Pick any combination — e.g. bottle + cap, or pump + label + box. Set the per-unit quantity only if a component is used more than once per bottle (e.g. 2 caps).</p>
-            <PackagingPicker packaging={packaging} selected={selected} setSelected={setSelected} sizeOz={sizeOz} />
+            <p className="mb-3 text-xs text-gray-500">Pick any combination — bottle, cap, label, box. Each is costed once per unit, across the order quantity set above.</p>
+            <PackagingPicker packaging={packaging} selected={selected} setSelected={setSelected} sizeOz={sizeOz} quantity={quantity} />
           </section>
 
           {/* Pricing */}
           <section className="rounded-lg border border-gray-200 bg-white p-4">
             <h2 className="mb-3 font-semibold text-navy">Pricing</h2>
-            <div className="grid gap-3 sm:grid-cols-3">
-              <label className="text-sm">
-                <span className="mb-1 block font-medium">Margin % *</span>
-                <input type="number" step="any" min="0" max="99.9" value={marginPct} required
-                  onChange={(e) => setMarginPct(e.target.value)} className={inputCls} />
-              </label>
-              <div className="text-sm sm:col-span-2">
-                <span className="mb-1 block font-medium">Price formula</span>
-                <p className="rounded bg-gray-50 px-3 py-2 text-gray-600">
-                  cost ÷ {(1 - (Number(marginPct) || 0) / 100).toFixed(2)}
-                  {totals && <span className="font-semibold text-navy"> = {money(totals.unitPrice)} per unit</span>}
-                </p>
-              </div>
-              <label className="text-sm">
-                <span className="mb-1 block font-medium">Valid through</span>
-                <input type="date" value={validityDate} onChange={(e) => setValidityDate(e.target.value)} className={inputCls} />
-              </label>
-            </div>
+            <label className="block text-sm sm:max-w-xs">
+              <span className="mb-1 block font-medium">Valid through</span>
+              <input type="date" value={validityDate} onChange={(e) => setValidityDate(e.target.value)} className={inputCls} />
+            </label>
             <label className="mt-3 block text-sm">
               <span className="mb-1 block font-medium">Internal notes</span>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className={inputCls} />
@@ -245,7 +233,7 @@ export default function NewQuotePage() {
                     </tr>
                     {selectedComponents.map((c) => (
                       <tr key={c.id} className="text-gray-600">
-                        <td className="py-0.5">{c.description}{c.qty_per_unit > 1 ? ` ×${c.qty_per_unit}` : ''}</td>
+                        <td className="py-0.5">{c.description}</td>
                         <td className="py-0.5 text-right">{money(c.unit_cost * c.qty_per_unit)}</td>
                       </tr>
                     ))}
