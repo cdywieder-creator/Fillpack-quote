@@ -86,7 +86,7 @@ export default function QuotesPage() {
                 <td className="px-4 py-2">{q.customer_company || q.customer_name}</td>
                 <td className="px-4 py-2">{q.recipe_name} — {q.package_size_oz} oz</td>
                 <td className="px-4 py-2 text-right">{q.quantity.toLocaleString()}</td>
-                <td className="px-4 py-2 text-right">{money(q.totals.unitPrice, 4)}</td>
+                <td className="px-4 py-2 text-right">{money(q.totals.unitPrice)}</td>
                 <td className="px-4 py-2 text-right font-medium">{money(q.totals.totalPrice)}</td>
                 <td className="px-4 py-2 text-right">{(q.totals.marginOnPrice * 100).toFixed(1)}%</td>
                 <td className="px-4 py-2">

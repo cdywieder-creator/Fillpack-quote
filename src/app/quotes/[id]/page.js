@@ -97,7 +97,7 @@ export default function QuoteDetailPage({ params }) {
           <section className="rounded-lg border border-gray-200 bg-white p-4">
             <h2 className="mb-2 font-semibold text-navy">Product</h2>
             <p className="text-sm">
-              {quote.recipe_name} — {quote.package_size_oz} oz · fill weight {quote.fill_weight_lb.toFixed(4)} lb/unit ·{' '}
+              {quote.recipe_name} — {quote.package_size_oz} oz · fill weight {quote.fill_weight_lb.toFixed(3)} lb/unit ·{' '}
               {quote.quantity.toLocaleString()} units
             </p>
             <div className="-mx-4 mt-3 overflow-x-auto px-4">
@@ -111,7 +111,7 @@ export default function QuoteDetailPage({ params }) {
                     <td className="py-1">{i.name}</td>
                     <td className="py-1 text-right">{i.percentage}%</td>
                     <td className="py-1 text-right">{money(i.cost_per_lb, 2)}</td>
-                    <td className="py-1 text-right">{money(quote.fill_weight_lb * (i.percentage / 100) * i.cost_per_lb, 4)}</td>
+                    <td className="py-1 text-right">{money(quote.fill_weight_lb * (i.percentage / 100) * i.cost_per_lb)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -128,7 +128,7 @@ export default function QuoteDetailPage({ params }) {
                     <td className="py-1 capitalize">{c.type} — {c.description}</td>
                     <td className="py-1 text-right">{c.qty_per_unit}</td>
                     <td className="py-1 text-right">{money(c.unit_cost, 4)}</td>
-                    <td className="py-1 text-right">{money(c.unit_cost * c.qty_per_unit, 4)}</td>
+                    <td className="py-1 text-right">{money(c.unit_cost * c.qty_per_unit)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -137,14 +137,14 @@ export default function QuoteDetailPage({ params }) {
             <div className="-mx-4 mt-4 overflow-x-auto px-4">
             <table className="w-full min-w-[22rem] text-sm">
               <thead className="text-left text-xs uppercase text-gray-500">
-                <tr><th className="py-1">Filling</th><th className="py-1 text-right">Fills/unit</th><th className="py-1 text-right">Rate</th><th className="py-1 text-right">Cost/unit</th></tr>
+                <tr><th className="py-1">Filling</th><th className="py-1 text-right">Units</th><th className="py-1 text-right">Cost/unit</th><th className="py-1 text-right">Extended</th></tr>
               </thead>
               <tbody>
                 <tr className="border-t border-gray-100">
                   <td className="py-1">Filling service</td>
-                  <td className="py-1 text-right">{quote.filling_qty}</td>
-                  <td className="py-1 text-right">{money(quote.filling_rate, 4)}</td>
-                  <td className="py-1 text-right">{money(t.fillingCost, 4)}</td>
+                  <td className="py-1 text-right">{quote.quantity.toLocaleString()}</td>
+                  <td className="py-1 text-right">{money(t.fillingCost)}</td>
+                  <td className="py-1 text-right">{money(t.fillingCost * quote.quantity)}</td>
                 </tr>
               </tbody>
             </table>
@@ -163,18 +163,18 @@ export default function QuoteDetailPage({ params }) {
           <div className="rounded-lg border border-gray-200 bg-white p-4">
             <h2 className="mb-3 font-semibold text-navy">Economics</h2>
             <div className="space-y-1 text-sm">
-              <div className="flex justify-between text-gray-600"><span>Oil cost / unit</span><span>{money(t.oilCost, 4)}</span></div>
-              <div className="flex justify-between text-gray-600"><span>Packaging / unit</span><span>{money(t.packagingCost, 4)}</span></div>
+              <div className="flex justify-between text-gray-600"><span>Oil cost / unit</span><span>{money(t.oilCost)}</span></div>
+              <div className="flex justify-between text-gray-600"><span>Packaging / unit</span><span>{money(t.packagingCost)}</span></div>
               <div className="flex justify-between text-gray-600">
-                <span>Filling / unit{quote.filling_qty !== 1 ? ` (×${quote.filling_qty})` : ''}</span>
-                <span>{money(t.fillingCost, 4)}</span>
+                <span>Filling / unit</span>
+                <span>{money(t.fillingCost)}</span>
               </div>
-              <div className="flex justify-between border-t border-gray-200 pt-1 font-semibold"><span>BOM / unit</span><span>{money(t.bomCost, 4)}</span></div>
+              <div className="flex justify-between border-t border-gray-200 pt-1 font-semibold"><span>BOM / unit</span><span>{money(t.bomCost)}</span></div>
               <div className="flex justify-between text-gray-600">
                 <span>{quote.pricing_method === 'markup' ? 'Markup on cost' : 'Margin on price'}</span>
                 <span>{quote.margin_pct}%</span>
               </div>
-              <div className="flex justify-between font-bold text-brand"><span>Unit price</span><span>{money(t.unitPrice, 4)}</span></div>
+              <div className="flex justify-between font-bold text-brand"><span>Unit price</span><span>{money(t.unitPrice)}</span></div>
               <div className="flex justify-between border-t border-gray-200 pt-2 font-bold text-navy"><span>Quote total</span><span>{money(t.totalPrice)}</span></div>
               <div className="flex justify-between text-gray-500"><span>Total cost</span><span>{money(t.totalCost)}</span></div>
               <div className="flex justify-between text-green-700"><span>Total profit</span><span>{money(t.totalProfit)}</span></div>

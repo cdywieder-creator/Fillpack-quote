@@ -28,7 +28,6 @@ export default function NewQuotePage() {
   const [notes, setNotes] = useState('');
   const [showNewRecipe, setShowNewRecipe] = useState(false);
   const [fillingRate, setFillingRate] = useState('');
-  const [fillingQty, setFillingQty] = useState('1');
 
   useEffect(() => {
     fetch('/api/recipes').then((r) => r.json()).then(setRecipes);
@@ -55,9 +54,9 @@ export default function NewQuotePage() {
       quantity: Number(quantity),
       method,
       fillingRate: Number(fillingRate || 0),
-      fillingQty: Number(fillingQty || 1),
+      fillingQty: 1,
     });
-  }, [recipe, fillWeightLb, selectedComponents, marginPct, quantity, method, fillingRate, fillingQty]);
+  }, [recipe, fillWeightLb, selectedComponents, marginPct, quantity, method, fillingRate]);
 
   async function save(e) {
     e.preventDefault();
@@ -73,7 +72,7 @@ export default function NewQuotePage() {
         fill_weight_lb: fillWeightLb,
         quantity: Number(quantity),
         filling_rate: Number(fillingRate || 0),
-        filling_qty: Number(fillingQty || 1),
+        filling_qty: 1,
         margin_pct: Number(marginPct),
         pricing_method: method,
         validity_date: validityDate,
@@ -173,23 +172,18 @@ export default function NewQuotePage() {
           <section className="rounded-lg border border-gray-200 bg-white p-4">
             <h2 className="mb-1 font-semibold text-navy">Filling</h2>
             <p className="mb-3 text-xs text-gray-500">
-              Your filling service charge — entered per quote, not picked from the component catalogue.
+              Your filling service charge for one finished unit. The order quantity is set above — this is per bottle.
             </p>
             <div className="grid gap-3 sm:grid-cols-3">
               <label className="text-sm">
-                <span className="mb-1 block font-medium">Filling cost (per fill)</span>
+                <span className="mb-1 block font-medium">Filling cost per unit</span>
                 <input type="number" step="any" min="0" placeholder="0.00" value={fillingRate}
                   onChange={(e) => setFillingRate(e.target.value)} className={inputCls} />
               </label>
-              <label className="text-sm">
-                <span className="mb-1 block font-medium">Fills per unit</span>
-                <input type="number" step="any" min="0.0001" value={fillingQty}
-                  onChange={(e) => setFillingQty(e.target.value)} className={inputCls} />
-              </label>
-              <div className="text-sm">
-                <span className="mb-1 block font-medium">Filling cost / unit</span>
+              <div className="text-sm sm:col-span-2">
+                <span className="mb-1 block font-medium">Filling across {Number(quantity || 0).toLocaleString()} units</span>
                 <p className="rounded bg-gray-50 px-3 py-2 font-semibold text-navy">
-                  {money(Number(fillingRate || 0) * Number(fillingQty || 1), 4)}
+                  {money(Number(fillingRate || 0) * Number(quantity || 0))}
                 </p>
               </div>
             </div>
@@ -198,7 +192,7 @@ export default function NewQuotePage() {
           {/* Packaging */}
           <section className="rounded-lg border border-gray-200 bg-white p-4">
             <h2 className="mb-1 font-semibold text-navy">Packaging</h2>
-            <p className="mb-3 text-xs text-gray-500">Pick any combination — e.g. bottle + cap, or pump + label + box. Set per-unit quantity if a component is used more than once.</p>
+            <p className="mb-3 text-xs text-gray-500">Pick any combination — e.g. bottle + cap, or pump + label + box. Set the per-unit quantity only if a component is used more than once per bottle (e.g. 2 caps).</p>
             <PackagingPicker packaging={packaging} selected={selected} setSelected={setSelected} sizeOz={sizeOz} />
           </section>
 
@@ -243,36 +237,34 @@ export default function NewQuotePage() {
                     {recipe.ingredients.map((i) => (
                       <tr key={i.id} className="text-gray-600">
                         <td className="py-0.5">{i.name} ({i.percentage}%)</td>
-                        <td className="py-0.5 text-right">{money(fillWeightLb * (i.percentage / 100) * i.cost_per_lb, 4)}</td>
+                        <td className="py-0.5 text-right">{money(fillWeightLb * (i.percentage / 100) * i.cost_per_lb)}</td>
                       </tr>
                     ))}
                     <tr className="border-t border-gray-100 font-medium">
                       <td className="py-1">Oil subtotal</td>
-                      <td className="py-1 text-right">{money(totals.oilCost, 4)}</td>
+                      <td className="py-1 text-right">{money(totals.oilCost)}</td>
                     </tr>
                     {selectedComponents.map((c) => (
                       <tr key={c.id} className="text-gray-600">
                         <td className="py-0.5">{c.description}{c.qty_per_unit > 1 ? ` ×${c.qty_per_unit}` : ''}</td>
-                        <td className="py-0.5 text-right">{money(c.unit_cost * c.qty_per_unit, 4)}</td>
+                        <td className="py-0.5 text-right">{money(c.unit_cost * c.qty_per_unit)}</td>
                       </tr>
                     ))}
                     <tr className="border-t border-gray-100 font-medium">
                       <td className="py-1">Packaging subtotal</td>
-                      <td className="py-1 text-right">{money(totals.packagingCost, 4)}</td>
+                      <td className="py-1 text-right">{money(totals.packagingCost)}</td>
                     </tr>
                     <tr className="border-t border-gray-100 font-medium">
-                      <td className="py-1">
-                        Filling{Number(fillingQty || 1) !== 1 ? ` ×${Number(fillingQty)}` : ''}
-                      </td>
-                      <td className="py-1 text-right">{money(totals.fillingCost, 4)}</td>
+                      <td className="py-1">Filling</td>
+                      <td className="py-1 text-right">{money(totals.fillingCost)}</td>
                     </tr>
                     <tr className="border-t border-gray-200 font-semibold text-navy">
                       <td className="py-1">BOM cost / unit</td>
-                      <td className="py-1 text-right">{money(totals.bomCost, 4)}</td>
+                      <td className="py-1 text-right">{money(totals.bomCost)}</td>
                     </tr>
                     <tr className="font-bold text-brand">
                       <td className="py-1">Unit price</td>
-                      <td className="py-1 text-right">{money(totals.unitPrice, 4)}</td>
+                      <td className="py-1 text-right">{money(totals.unitPrice)}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -304,7 +296,7 @@ export default function NewQuotePage() {
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-xs text-gray-500">
-              {totals ? `${Number(quantity || 0).toLocaleString()} units · ${money(totals.unitPrice, 4)}/unit` : 'Select a recipe to price'}
+              {totals ? `${Number(quantity || 0).toLocaleString()} units · ${money(totals.unitPrice)}/unit` : 'Select a recipe to price'}
             </p>
             <p className="truncate text-lg font-bold text-navy">{totals ? money(totals.totalPrice) : '—'}</p>
           </div>

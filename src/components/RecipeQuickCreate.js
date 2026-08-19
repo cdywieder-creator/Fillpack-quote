@@ -8,7 +8,6 @@ import { DEFAULT_SPECIFIC_GRAVITY } from '@/lib/quote-math';
 export default function RecipeQuickCreate({ onCreated, onClose }) {
   const [oils, setOils] = useState([]);
   const [name, setName] = useState('');
-  const [sg, setSg] = useState(String(DEFAULT_SPECIFIC_GRAVITY));
   const [lines, setLines] = useState([{ ingredient_id: '', percentage: '' }]);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -62,7 +61,7 @@ export default function RecipeQuickCreate({ onCreated, onClose }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name,
-        specific_gravity: Number(sg),
+        specific_gravity: DEFAULT_SPECIFIC_GRAVITY,
         notes: '',
         ingredients: lines
           .filter((l) => l.ingredient_id)
@@ -98,18 +97,11 @@ export default function RecipeQuickCreate({ onCreated, onClose }) {
           </p>
         )}
 
-        <div className="grid gap-3 sm:grid-cols-3">
-          <label className="text-sm sm:col-span-2">
-            <span className="mb-1 block font-medium">Recipe name *</span>
-            <input value={name} onChange={(e) => setName(e.target.value)} autoFocus
-              className="w-full rounded border border-gray-300 px-3 py-2 text-sm" />
-          </label>
-          <label className="text-sm">
-            <span className="mb-1 block font-medium">Specific gravity</span>
-            <input type="number" step="any" min="0.1" value={sg} onChange={(e) => setSg(e.target.value)}
-              className="w-full rounded border border-gray-300 px-3 py-2 text-sm" />
-          </label>
-        </div>
+        <label className="block text-sm">
+          <span className="mb-1 block font-medium">Recipe name *</span>
+          <input value={name} onChange={(e) => setName(e.target.value)} autoFocus
+            className="w-full rounded border border-gray-300 px-3 py-2 text-sm" />
+        </label>
 
         <div className="mt-4">
           <div className="mb-2 flex items-center justify-between">
@@ -151,7 +143,7 @@ export default function RecipeQuickCreate({ onCreated, onClose }) {
           </button>
 
           <p className="mt-3 border-t border-gray-100 pt-3 text-sm text-gray-600">
-            Blended oil cost: <span className="font-semibold text-navy">${costPerLb.toFixed(4)}/lb</span>
+            Blended oil cost: <span className="font-semibold text-navy">${costPerLb.toFixed(2)}/lb</span>
           </p>
         </div>
 

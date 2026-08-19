@@ -71,16 +71,10 @@ export default function RecipeEditor({ recipeId = null }) {
     <form onSubmit={save} className="max-w-3xl">
       {error && <p className="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       <div className="grid gap-4 rounded-lg border border-gray-200 bg-white p-4 sm:grid-cols-3">
-        <label className="text-sm sm:col-span-2">
+        <label className="text-sm sm:col-span-3">
           <span className="mb-1 block font-medium">Recipe name *</span>
           <input value={name} onChange={(e) => setName(e.target.value)} required
             className="w-full rounded border border-gray-300 px-3 py-2" />
-        </label>
-        <label className="text-sm">
-          <span className="mb-1 block font-medium">Specific gravity</span>
-          <input type="number" step="any" min="0.1" value={sg} onChange={(e) => setSg(e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2" />
-          <span className="mt-1 block text-xs text-gray-500">Water = 1.0; most oils ≈ 0.91. Used to derive fill weight.</span>
         </label>
         <label className="text-sm sm:col-span-3">
           <span className="mb-1 block font-medium">Notes</span>
@@ -122,7 +116,7 @@ export default function RecipeEditor({ recipeId = null }) {
           + Add oil
         </button>
         <p className="mt-3 border-t border-gray-100 pt-3 text-sm text-gray-600">
-          Blended oil cost at current prices: <span className="font-semibold text-navy">${costPerLb.toFixed(4)}/lb</span>
+          Blended oil cost at current prices: <span className="font-semibold text-navy">${costPerLb.toFixed(2)}/lb</span>
         </p>
       </div>
 

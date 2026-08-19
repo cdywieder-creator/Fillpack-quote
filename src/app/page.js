@@ -117,7 +117,7 @@ export default async function Dashboard() {
                 <td className="px-4 py-2">{q.customer_company || q.customer_name}</td>
                 <td className="px-4 py-2">{q.recipe_name} — {q.package_size_oz} oz</td>
                 <td className="px-4 py-2 text-right">{q.quantity.toLocaleString()}</td>
-                <td className="px-4 py-2 text-right">{money(q.totals.unitPrice, 4)}</td>
+                <td className="px-4 py-2 text-right">{money(q.totals.unitPrice)}</td>
                 <td className="px-4 py-2 text-right font-medium">{money(q.totals.totalPrice)}</td>
                 <td className="px-4 py-2">
                   <span className={`rounded-full px-2 py-0.5 text-xs ${statusColor[q.status] || ''}`}>{q.status}</span>
