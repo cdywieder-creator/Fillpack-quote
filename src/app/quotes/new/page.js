@@ -152,12 +152,12 @@ export default function NewQuotePage() {
               </label>
               <label className="text-sm">
                 <span className="mb-1 block font-medium">Fill weight (lb/unit)</span>
-                <input type="number" step="any" min="0" placeholder={autoFill ? autoFill.toFixed(4) : 'auto'}
+                <input type="number" step="any" min="0" placeholder={autoFill ? autoFill.toFixed(3) : 'auto'}
                   value={fillOverride} onChange={(e) => setFillOverride(e.target.value)} className={inputCls} />
                 <span className="mt-1 block text-xs text-gray-500">
                   {recipe
-                    ? `Auto: ${autoFill.toFixed(4)} lb (${sizeOz || 0} fl oz × SG ${recipe.specific_gravity}). Leave blank to use auto, or type to override.`
-                    : 'Derived from size × recipe specific gravity.'}
+                    ? `Auto: ${autoFill.toFixed(3)} lb for ${sizeOz || 0} fl oz. Leave blank to use auto, or type to override.`
+                    : 'Calculated from the package size once a recipe is picked.'}
                 </span>
               </label>
               <label className="text-sm">

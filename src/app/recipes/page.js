@@ -33,7 +33,6 @@ export default function RecipesPage() {
           { key: 'recipe_name', label: 'Recipe name', required: true },
           { key: 'oil', label: 'Oil (name/code)', required: true },
           { key: 'percentage', label: 'Percentage', required: true },
-          { key: 'specific_gravity', label: 'Specific gravity' },
           { key: 'notes', label: 'Notes' },
         ]}
         onDone={load}
@@ -66,7 +65,6 @@ export default function RecipesPage() {
               </ul>
               <p className="mt-3 border-t border-gray-100 pt-2 text-sm">
                 Blend cost: <span className="font-semibold">${costPerLb.toFixed(4)}/lb</span>
-                <span className="ml-2 text-xs text-gray-400">SG {r.specific_gravity}</span>
               </p>
               {r.notes && <p className="mt-1 text-xs text-gray-400">{r.notes}</p>}
             </div>
